@@ -24,4 +24,5 @@ export const config = {
   adminPassword: getEnv('ADMIN_PASSWORD', 'admin123'),
   adminName: getEnv('ADMIN_NAME', 'Admin'),
   corsOrigin: getEnv('CORS_ORIGIN', 'http://localhost:3000'),
+  NODE_ENV: getEnv('NODE_ENV', 'development'),
 };

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as AuthService from './auth.service';
 import { asyncHandler } from '../../utils/async-handler';
 import { errorResponse, successResponse } from '../../utils/response-handler';
+import { config } from '../../config';
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const data = req.body;
@@ -14,7 +15,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const result = await AuthService.login(email, password);
   res.cookie('refresh-token', result.tokens.refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Set secure flag in production
+    secure: config.NODE_ENV === 'production', // Set secure flag in production
     sameSite: 'strict', // Adjust as needed
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
@@ -124,7 +125,7 @@ export const initAdmin = asyncHandler(async (req: Request, res: Response) => {
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie('refresh-token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Set secure flag in production
+    secure: config.NODE_ENV === 'production', // Set secure flag in production
     sameSite: 'strict', // Adjust as needed
   });
   successResponse(res, 'Logout successful', {});

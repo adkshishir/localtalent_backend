@@ -15,10 +15,11 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const result = await AuthService.login(email, password);
   res.cookie('refresh-token', result.tokens.refreshToken, {
     httpOnly: true,
-    secure: config.NODE_ENV === 'production', // Set secure flag in production
-    sameSite: 'strict', // Adjust as needed
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    secure: config.NODE_ENV === 'production',
+    sameSite: 'none',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   });
+
   successResponse(res, 'Login successful', {
     user: result.user,
     tokens: {

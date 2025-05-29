@@ -22,7 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(
   cors({
-    origin: true, // Allow all origins or specify your frontend URL
+    origin: [
+      'https://localtalent-frontend.vercel.app',
+      'http://localhost:8080',
+    ],
     credentials: true,
   })
 );

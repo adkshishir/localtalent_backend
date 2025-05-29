@@ -1,4 +1,3 @@
-// File: prisma/seed.ts
 import {
   PrismaClient,
   Role,
@@ -6,35 +5,63 @@ import {
   BookingStatus,
 } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Clear existing data
+  // Step 1: Clear existing data
   await prisma.booking.deleteMany();
   await prisma.service.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create users
-  const users: {
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-    role: Role;
-    createdAt: Date;
-    updatedAt: Date;
-  }[] = [];
-  for (let i = 0; i < 100; i++) {
+  // Step 2: Create predefined users
+  const passwordHash = await bcrypt.hash('Password@123', 10);
+
+  await prisma.user.createMany({
+    data: [
+      {
+        name: 'Demo User',
+        email: 'user@demo.com',
+        password: passwordHash,
+        role: 'USER',
+      },
+      {
+        name: 'Demo Freelancer',
+        email: 'freelancer@demo.com',
+        password: passwordHash,
+        role: 'FREELANCER',
+      },
+      {
+        name: 'Demo Admin',
+        email: 'admin@demo.com',
+        password: passwordHash,
+        role: 'ADMIN',
+      },
+    ],
+  });
+
+  const predefinedUsers = await prisma.user.findMany({
+    where: {
+      email: {
+        in: ['user@demo.com', 'freelancer@demo.com', 'admin@demo.com'],
+      },
+    },
+  });
+
+  const users: typeof predefinedUsers = [...predefinedUsers];
+
+  // Step 3: Generate 97 more users
+  for (let i = 0; i < 97; i++) {
     const role: Role =
       i % 3 === 0 ? 'FREELANCER' : i % 5 === 0 ? 'ADMIN' : 'USER';
     const user = await prisma.user.create({
       data: {
         name: faker.person.fullName(),
         email: faker.internet.email().toLowerCase(),
-        password: faker.internet.password(),
+        password: await bcrypt.hash(faker.internet.password(), 10),
         role,
       },
     });
@@ -43,9 +70,11 @@ async function main() {
 
   const freelancers = users.filter((u) => u.role === 'FREELANCER');
   const nonFreelancers = users.filter((u) => u.role === 'USER');
+  const demoUser = users.find((u) => u.email === 'user@demo.com');
+  const demoFreelancer = users.find((u) => u.email === 'freelancer@demo.com');
 
-  // Create services
-  const services: {
+  // Step 4: Create services (some for demoFreelancer too)
+  const services: Array<{
     id: number;
     createdAt: Date;
     updatedAt: Date;
@@ -57,9 +86,13 @@ async function main() {
     imageUrl: string | null;
     approved: ApprovalStatus;
     userId: number;
-  }[] = [];
+  }> = [];
   for (let i = 0; i < 100; i++) {
-    const freelancer = faker.helpers.arrayElement(freelancers);
+    const freelancer =
+      i < 5 && demoFreelancer
+        ? demoFreelancer
+        : faker.helpers.arrayElement(freelancers);
+
     const service = await prisma.service.create({
       data: {
         title: faker.commerce.productName(),
@@ -79,9 +112,10 @@ async function main() {
     services.push(service);
   }
 
-  // Create bookings
+  // Step 5: Create bookings
   for (let i = 0; i < 100; i++) {
-    const user = faker.helpers.arrayElement(nonFreelancers);
+    const user =
+      i < 5 && demoUser ? demoUser : faker.helpers.arrayElement(nonFreelancers);
     const service = faker.helpers.arrayElement(services);
 
     await prisma.booking.create({

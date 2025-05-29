@@ -102,8 +102,8 @@ Create a `.env` file in the root:
 PORT=8000
 DATABASE_URL="DATABASE_URL="postgresql://user:password@localhost:5432/localtalent?schema=public"
 JWT_SECRET=your_jwt_secret
-BASE_URL="https://localtalent-backend.netlify.app"
-FRONTEND_URL="https://localtalent.verce.app"
+BASE_URL="https://localtalent-backend-frjo.onrender.com"
+FRONTEND_URL="https://localtalent-frontend.vercel.app"
 
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587

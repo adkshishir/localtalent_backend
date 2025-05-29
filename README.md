@@ -12,7 +12,7 @@ This is the backend API for the **LocalTalent** platform, built with **Express.j
 - **Express Validator** — Input validation
 - **Multer** + **Sharp** — File upload & image processing
 - **JWT** — Authentication (access/refresh tokens)
-- **Bycrypt** — Password Hash
+- **Bcrypt** — Password Hash
 - **dotenv** — Environment config
 
 ---
